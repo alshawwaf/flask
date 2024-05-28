@@ -1,4 +1,4 @@
-project="demo_site"
+project="cp_demo_server"
 mkdir "${project}_project"
 cd "${project}_project/"
 mkdir $project
@@ -13,7 +13,7 @@ touch $project/certificate/openssl.cnf
 cat >> $project/certificate/openssl.cnf <<EOF
 [ req ]
 prompt = no
-distinguished_name = alshawwaf.ca
+distinguished_name = server.americas-ses.com
 
 [ alshawwaf.ca ]
 countryName=            CA
@@ -21,7 +21,7 @@ stateOrProvinceName=    ON
 localityName=           Ottawa
 organizationName=       Americas-ses
 organizationalUnitName= Demo TLS Web Server
-commonName=             www.americas-ses.ca
+commonName=             www.server.americas-ses.ca
 emailAddress = kalshaww@checkpoint.com
 EOF
 
@@ -48,7 +48,7 @@ def index():
     
 @app.route("/get-json", methods=["get"])
 def get_json():
-    ranges = ["example.com"]
+    ranges = ["americas-ses.com"]
     dc = {
         "objects": [
             {
@@ -117,7 +117,7 @@ import sys
 sys.path.append(os.path.dirname(os.getcwd()))
 from $project import app
 if __name__ == '__main__':
-    app.run(host ='0.0.0.0', debug=True, ssl_context=('certificate/cert.pem', 'certificate/key.pem'))
+    app.run(host ='0.0.0.0', port='8080', debug=True, ssl_context=('certificate/cert.pem', 'certificate/key.pem'))
 EOF
 cat > templates/base.html << 'EOF'
 <!DOCTYPE html>
