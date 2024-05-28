@@ -7,9 +7,27 @@ virtualenv venv
 source venv/bin/activate
 pip install flask flask-wtf
 
+touch $project/certificate/openssl.cnf
+
+cat >> $project/certificate/openssl.cnf <<EOF
+[ req ]
+prompt = no
+distinguished_name = alshawwaf.ca
+
+[ alshawwaf.ca ]
+C = CA
+ST = Ontario
+L = Test Locality
+O = alshawwaf
+OU = 
+CN = 
+emailAddress = kalshaww@checkpoint.com
+EOF
+
+
 # You can generate self-signed certificates easily from the command line. All you need is to have openssl installed:
 # sudo apt install openssl
-openssl req -x509 -newkey rsa:4096 -nodes -out $project/certificate/cert.pem -keyout $project/certificate/key.pem -days 365
+openssl req -x509 --config openssl.cnf -newkey rsa:4096 -nodes -out $project/certificate/cert.pem -keyout $project/certificate/key.pem -days 365
 
 cd $project
 mkdir static templates data
