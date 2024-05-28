@@ -51,7 +51,7 @@ import sys
 sys.path.append(os.path.dirname(os.getcwd()))
 from $project import app
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context=('certificate/cert.pem', 'certificate/key.pem'))
+    app.run(host ='0.0.0.0', debug=True, ssl_context=('certificate/cert.pem', 'certificate/key.pem'))
 EOF
 cat > templates/base.html << 'EOF'
 <!DOCTYPE html>
