@@ -13,13 +13,13 @@ touch $project/certificate/openssl.cnf
 cat >> $project/certificate/openssl.cnf <<EOF
 [ req ]
 prompt = no
-distinguished_name = server.americas-ses.com
+distinguished_name = americas-ses.com
 
-[ alshawwaf.ca ]
+[ americas-ses.com ]
 countryName=            CA
 stateOrProvinceName=    ON
 localityName=           Ottawa
-organizationName=       Americas-ses
+organizationName=       server.Americas-ses
 organizationalUnitName= Demo TLS Web Server
 commonName=             www.server.americas-ses.ca
 emailAddress = kalshaww@checkpoint.com
@@ -35,17 +35,25 @@ mkdir static templates data
 touch forms.py
 cat > __init__.py << EOF
 from flask import Flask
+
 app = Flask(__name__)
 from $project import views
 EOF
 cat > views.py << EOF
 from $project import app
-from flask import render_template, jsonify
+from flask import render_template, jsonify, send_file
 import ipaddress
-@app.route
+@app.route("/", methods=["get"])
+@app.route("/index.html", methods=["get"])
 def index():
     return render_template('index.html')
-    
+
+@app.route('/download_cert')
+def download_cert ():
+    #vFor windows you need to use drive name [ex: F:/cert.pem]
+    path = "certificate/cert.pem"
+    return send_file(path, as_attachment=True)
+        
 @app.route("/get-json", methods=["get"])
 def get_json():
     ranges = ["americas-ses.com"]
@@ -124,8 +132,7 @@ cat > templates/base.html << 'EOF'
 <html>
     <head>
     {% block head %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    {% endblock %}
+       {% endblock %}
     </head>
     <body>
     {% block content %}
@@ -136,19 +143,35 @@ EOF
 cat > templates/index.html << EOF
 {% extends 'base.html' %}
 {% block content %}
+ 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
         <div class="container">
-    </br></br></br></br></br>
-        <h2>Serving a JSON file and a flat list</h2>
+
+        </br>
+        <h3>Demo Servers for Generic Datacenter Objects and Network Feeds</h3>
         </br>
         <form method="get" action="/get-json">
             <button type="submit" class="btn btn-info">Network Feed - JSON</button>
         </form>
+        </br>
         <form method="get" action="/get-list">
             <button type="submit" class="btn btn-primary">Network Feed - Flat List</button>
         </form>
+        </br>
         <form method="get" action="/get-gdc">
             <button type="submit" class="btn btn-secondary">Generic Gata Center Feed</button>
         </form>
+        
+    </div>
+    
+    <div class="container">
+        </br></br>
+        <h3>Server with certificate for Inbound HTTPS Inspection</h3>
+        </br>
+	<form method="get" action="/download_cert">
+            <button type="submit" class="btn btn-warning">Download the Server Certificate</button>
+        </form>
+        
     </div> 
 {% endblock %}
 EOF
