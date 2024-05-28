@@ -3,6 +3,7 @@ mkdir "${project}_project"
 cd "${project}_project/"
 mkdir $project
 mkdir $project/certificate/
+sudo apt install python3-virtualenv -y
 virtualenv venv
 source venv/bin/activate
 pip install flask flask-wtf
@@ -15,19 +16,19 @@ prompt = no
 distinguished_name = alshawwaf.ca
 
 [ alshawwaf.ca ]
-C = CA
-ST = Ontario
-L = Test Locality
-O = alshawwaf
-OU = 
-CN = 
+countryName=            CA
+stateOrProvinceName=    ON
+localityName=           Ottawa
+organizationName=       Americas-ses
+organizationalUnitName= Demo TLS Web Server
+commonName=             www.americas-ses.ca
 emailAddress = kalshaww@checkpoint.com
 EOF
 
 
 # You can generate self-signed certificates easily from the command line. All you need is to have openssl installed:
 # sudo apt install openssl
-openssl req -x509 --config openssl.cnf -newkey rsa:4096 -nodes -out $project/certificate/cert.pem -keyout $project/certificate/key.pem -days 365
+openssl req -x509 --config $project/certificate/openssl.cnf -newkey rsa:4096 -nodes -out $project/certificate/cert.pem -keyout $project/certificate/key.pem -days 365
 
 cd $project
 mkdir static templates data
@@ -50,7 +51,7 @@ import sys
 sys.path.append(os.path.dirname(os.getcwd()))
 from $project import app
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context=('$project/certificate/cert.pem', '$project/certificate/key.pem'))
+    app.run(debug=True, ssl_context=('certificate/cert.pem', 'certificate/key.pem'))
 EOF
 cat > templates/base.html << 'EOF'
 <!DOCTYPE html>
@@ -69,8 +70,9 @@ EOF
 cat > templates/index.html << EOF
 {% extends 'base.html' %}
 {% block content %}
-    <h1>$project</h1>
+    <h1>Demo TLS Webste</h1>
+    <h2> Use this server to test inbound HTTPS Inspection</h1>
 {% endblock %}
 EOF
 pip freeze > requirements.txt
-python run.py
+python3 run.py
