@@ -29,6 +29,8 @@ EOF
 # You can generate self-signed certificates easily from the command line. All you need is to have openssl installed:
 # sudo apt install openssl
 openssl req -x509 --config $project/certificate/openssl.cnf -newkey rsa:4096 -nodes -out $project/certificate/cert.pem -keyout $project/certificate/key.pem -days 365
+openssl pkcs12 -export -out $project/certificate/cp_demo_server.p12 -inkey $project/certificate/key.pem -in $project/certificate/cert.pem -passout pass:vpn123!
+
 
 cd $project
 mkdir static templates data
@@ -51,7 +53,7 @@ def index():
 @app.route('/download_cert')
 def download_cert ():
     #vFor windows you need to use drive name [ex: F:/cert.pem]
-    path = "certificate/cert.pem"
+    path = "certificate/cp_demo_server.p12"
     return send_file(path, as_attachment=True)
         
 @app.route("/get-json", methods=["get"])
@@ -169,7 +171,7 @@ cat > templates/index.html << EOF
         <h3>Server with certificate for Inbound HTTPS Inspection</h3>
         </br>
 	<form method="get" action="/download_cert">
-            <button type="submit" class="btn btn-warning">Download the Server Certificate</button>
+            <button type="submit" class="btn btn-warning">Download the Server Certificate (pass:vpn123!)</button>
         </form>
         
     </div> 
